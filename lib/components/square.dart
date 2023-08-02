@@ -14,7 +14,7 @@ class Square extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      color: isWhite ? Colors.grey[300] : Colors.grey[600],
+      color: isWhite ? Colors.grey[400] : Colors.grey[600],
       child: piece != null
           ? Padding(
               padding: const EdgeInsets.all(8.0),
