@@ -14,6 +14,15 @@ class _GameBoardState extends State<GameBoard> {
   //?? 2-D list representing chessboard ->
   late List<List<ChessPiece?>> board;
 
+  //??
+  ChessPiece? selectedPieces;
+
+  //?? row index of selected piece ->
+  int selectedRow = -1;
+
+  //?? col index of selected piece ->
+  int selectedCol = -1;
+
   //?? init board ->
   void _initBoard() {
     //** place pieces to correct position ->
@@ -128,6 +137,17 @@ class _GameBoardState extends State<GameBoard> {
     board = newBoard;
   }
 
+  //?? selected piece ->
+  void pieceSelected(int row, int col) {
+    setState(() {
+      if (board[row][col] != null) {
+        selectedPieces = board[row][col];
+        selectedRow = row;
+        selectedCol = col;
+      }
+    });
+  }
+
   //?? init state ->
   @override
   void initState() {
@@ -148,9 +168,14 @@ class _GameBoardState extends State<GameBoard> {
           //?? get the row and col pos. of sq. ->
           int row = index ~/ 8;
           int col = index % 8;
+
+          //** check if sq. is selected ->
+          bool isSelected = selectedRow == row && selectedCol == col;
           return Square(
             isWhite: isWhite(index),
             piece: board[row][col],
+            isSelected: isSelected,
+            onTap: () => pieceSelected(row, col),
           );
         },
       ),
