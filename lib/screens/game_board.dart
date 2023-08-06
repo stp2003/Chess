@@ -32,6 +32,13 @@ class _GameBoardState extends State<GameBoard> {
     List<List<ChessPiece?>> newBoard =
         List.generate(8, (index) => List.generate(8, (index) => null));
 
+    //?? for testing
+    newBoard[3][3] = ChessPiece(
+      type: ChessPieceType.queen,
+      isWhite: false,
+      imagePath: 'assets/queen.png',
+    );
+
     //?? place pawns ->
     for (int i = 0; i < 8; i++) {
       newBoard[1][i] = ChessPiece(
@@ -193,15 +200,141 @@ class _GameBoardState extends State<GameBoard> {
 
         break;
       case ChessPieceType.rook:
+        var directions = [
+          [-1, 0], // up
+          [1, 0], // down
+          [0, -1], // left
+          [0, 1], // right
+        ];
+        for (var direction in directions) {
+          var i = 1;
+          while (true) {
+            var newRow = row + i * direction[0];
+            var newCol = col + i * direction[1];
+            if (!isInBoard(newRow, newCol)) {
+              break;
+            }
+            if (board[newRow][newCol] != null) {
+              if (board[newRow][newCol]!.isWhite != piece.isWhite) {
+                candidateMoves.add([newRow, newCol]); // kill
+              }
+              break;
+            }
+            candidateMoves.add([newRow, newCol]);
+            i++;
+          }
+        }
         break;
       case ChessPieceType.knight:
+        var knightMoves = [
+          [-2, -1],
+          [-2, 1],
+          [-1, -2],
+          [-1, 2],
+          [1, -2],
+          [1, 2],
+          [2, -1],
+          [2, 1],
+        ];
+        for (var move in knightMoves) {
+          var newRow = row + move[0];
+          var newCol = col + move[1];
+          if (!isInBoard(newRow, newCol)) {
+            continue;
+          }
+          if (board[newRow][newCol] != null) {
+            if (board[newRow][newCol]!.isWhite != piece.isWhite) {
+              candidateMoves.add([newRow, newCol]); // kill
+            }
+            continue;
+          }
+          candidateMoves.add([newRow, newCol]);
+        }
         break;
       case ChessPieceType.bishop:
+        var directions = [
+          [-1, -1],
+          [-1, 1],
+          [1, -1],
+          [1, 1],
+        ];
+        for (var direction in directions) {
+          var i = 1;
+          while (true) {
+            var newRow = row + i * direction[0];
+            var newCol = col + i * direction[1];
+            if (!isInBoard(newRow, newCol)) {
+              break;
+            }
+            if (board[newRow][newCol] != null) {
+              if (board[newRow][newCol]!.isWhite != piece.isWhite) {
+                candidateMoves.add([newRow, newCol]); // kill
+              }
+              break;
+            }
+            candidateMoves.add([newRow, newCol]);
+            i++;
+          }
+        }
         break;
       case ChessPieceType.queen:
+        var directions = [
+          [-1, 0],
+          [1, 0],
+          [0, -1],
+          [0, 1],
+          [-1, -1],
+          [-1, 1],
+          [1, -1],
+          [1, 1],
+        ];
+        for (var direction in directions) {
+          var i = 1;
+          while (true) {
+            var newRow = row + i * direction[0];
+            var newCol = col + i * direction[1];
+            if (!isInBoard(newRow, newCol)) {
+              break;
+            }
+            if (board[newRow][newCol] != null) {
+              if (board[newRow][newCol]!.isWhite != piece.isWhite) {
+                candidateMoves.add([newRow, newCol]); // kill
+              }
+              break;
+            }
+            candidateMoves.add([newRow, newCol]);
+          }
+        }
         break;
       case ChessPieceType.king:
+        var directions = [
+          [-1, 0],
+          [1, 0],
+          [0, -1],
+          [0, 1],
+          [-1, -1],
+          [-1, 1],
+          [1, -1],
+          [1, 1],
+        ];
+        for (var direction in directions) {
+          while (true) {
+            var newRow = row + direction[0];
+            var newCol = col + direction[1];
+            if (!isInBoard(newRow, newCol)) {
+              continue;
+            }
+            if (board[newRow][newCol] != null) {
+              if (board[newRow][newCol]!.isWhite != piece.isWhite) {
+                candidateMoves.add([newRow, newCol]); // kill
+              }
+              continue;
+            }
+            candidateMoves.add([newRow, newCol]);
+          }
+        }
         break;
+
       default:
     }
     return candidateMoves;
