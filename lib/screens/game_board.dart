@@ -33,11 +33,11 @@ class _GameBoardState extends State<GameBoard> {
         List.generate(8, (index) => List.generate(8, (index) => null));
 
     //?? for testing
-    newBoard[3][3] = ChessPiece(
-      type: ChessPieceType.queen,
-      isWhite: false,
-      imagePath: 'assets/queen.png',
-    );
+    // newBoard[3][3] = ChessPiece(
+    //   type: ChessPieceType.queen,
+    //   isWhite: false,
+    //   imagePath: 'assets/queen.png',
+    // );
 
     //?? place pawns ->
     for (int i = 0; i < 8; i++) {
@@ -155,7 +155,11 @@ class _GameBoardState extends State<GameBoard> {
         selectedRow = row;
         selectedCol = col;
       }
-
+      //?? move ->
+      else if (selectedPieces != null &&
+          validMoves.any((element) => element[0] == row && element[1] == col)) {
+        movePiece(row, col);
+      }
       //** cal. valid moves of selected pieces ->
       validMoves =
           calculatedRawValidMoves(selectedRow, selectedCol, selectedPieces);
@@ -166,8 +170,12 @@ class _GameBoardState extends State<GameBoard> {
   List<List<int>> calculatedRawValidMoves(int row, int col, ChessPiece? piece) {
     List<List<int>> candidateMoves = [];
 
+    if (piece == null) {
+      return [];
+    }
+
     //** diff. directions based on colors ->
-    int direction = piece!.isWhite ? -1 : 1;
+    int direction = piece.isWhite ? -1 : 1;
 
     switch (piece.type) {
       case ChessPieceType.pawn:
@@ -303,6 +311,7 @@ class _GameBoardState extends State<GameBoard> {
               break;
             }
             candidateMoves.add([newRow, newCol]);
+            i++;
           }
         }
         break;
@@ -318,26 +327,39 @@ class _GameBoardState extends State<GameBoard> {
           [1, 1],
         ];
         for (var direction in directions) {
-          while (true) {
-            var newRow = row + direction[0];
-            var newCol = col + direction[1];
-            if (!isInBoard(newRow, newCol)) {
-              continue;
-            }
-            if (board[newRow][newCol] != null) {
-              if (board[newRow][newCol]!.isWhite != piece.isWhite) {
-                candidateMoves.add([newRow, newCol]); // kill
-              }
-              continue;
-            }
-            candidateMoves.add([newRow, newCol]);
+          var newRow = row + direction[0];
+          var newCol = col + direction[1];
+          if (!isInBoard(newRow, newCol)) {
+            continue;
           }
+          if (board[newRow][newCol] != null) {
+            if (board[newRow][newCol]!.isWhite != piece.isWhite) {
+              candidateMoves.add([newRow, newCol]); // kill
+            }
+            continue;
+          }
+          candidateMoves.add([newRow, newCol]);
         }
         break;
 
       default:
     }
     return candidateMoves;
+  }
+
+  //?? move piece ->
+  void movePiece(int newRow, int newCol) {
+    //** move and clear old spot ->
+    board[newRow][newCol] = selectedPieces;
+    board[selectedRow][selectedCol] = null;
+
+    //** clear section ->
+    setState(() {
+      selectedPieces = null;
+      selectedRow = -1;
+      selectedCol = -1;
+      validMoves = [];
+    });
   }
 
   //?? init state ->
