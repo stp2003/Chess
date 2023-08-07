@@ -434,6 +434,25 @@ class _GameBoardState extends State<GameBoard> {
       selectedCol = -1;
       validMoves = [];
     });
+
+    //??
+    if (isCheckMate(!isWhiteTurn)) {
+      showDialog(
+        context: context,
+        builder: (context) => AlertDialog(
+          title: const Text('CHECK MATE'),
+          actions: [
+            TextButton(
+              onPressed: resetGame,
+              child: const Text(
+                'Play Again',
+              ),
+            ),
+          ],
+        ),
+      );
+    }
+
     //** change turns ->
     isWhiteTurn = !isWhiteTurn;
   }
@@ -496,11 +515,44 @@ class _GameBoardState extends State<GameBoard> {
     return !kingInCheck;
   }
 
+  //?? is check mate ->
+  bool isCheckMate(bool isWhiteKing) {
+    if (!isKingInCheck(isWhiteKing)) {
+      return false;
+    }
+    for (int i = 0; i < 8; i++) {
+      for (int j = 0; j < 8; j++) {
+        if (board[i][j] == null || board[i][j]!.isWhite != isWhiteKing) {
+          continue;
+        }
+        List<List<int>> pieceValidMoves =
+            calculatedRealValidMoves(i, j, board[i][j], true);
+        if (pieceValidMoves.isNotEmpty) {
+          return false;
+        }
+      }
+    }
+    return true;
+  }
+
   //?? init state ->
   @override
   void initState() {
     super.initState();
     _initBoard();
+  }
+
+  //?? reset game ->
+  void resetGame() {
+    Navigator.pop(context);
+    _initBoard();
+    checkStatus = false;
+    whitePiecesTaken.clear();
+    blackPiecesTaken.clear();
+    whiteKingPosition = [7, 4];
+    blackKingPosition = [0, 4];
+    isWhiteTurn = true;
+    setState(() {});
   }
 
   @override
