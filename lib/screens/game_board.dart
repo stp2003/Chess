@@ -223,12 +223,12 @@ class _GameBoardState extends State<GameBoard> {
         //** can capture diagonally ->
         if (isInBoard(row + direction, col - 1) &&
             board[row + direction][col - 1] != null &&
-            board[row + direction][col - 1]!.isWhite) {
+            board[row + direction][col - 1]!.isWhite != piece.isWhite) {
           candidateMoves.add([row + direction, col - 1]);
         }
         if (isInBoard(row + direction, col + 1) &&
             board[row + direction][col + 1] != null &&
-            board[row + direction][col + 1]!.isWhite) {
+            board[row + direction][col + 1]!.isWhite != piece.isWhite) {
           candidateMoves.add([row + direction, col + 1]);
         }
 
@@ -389,6 +389,13 @@ class _GameBoardState extends State<GameBoard> {
     board[newRow][newCol] = selectedPieces;
     board[selectedRow][selectedCol] = null;
 
+    //** king check ->
+    if (isKingInCheck(!isWhiteTurn)) {
+      checkStatus = true;
+    } else {
+      checkStatus = false;
+    }
+
     //** clear section ->
     setState(() {
       selectedPieces = null;
@@ -398,6 +405,29 @@ class _GameBoardState extends State<GameBoard> {
     });
     //** change turns ->
     isWhiteTurn = !isWhiteTurn;
+  }
+
+  //?? king check ->
+  bool isKingInCheck(bool isWhiteKing) {
+    List<int> kingPosition =
+        isWhiteKing ? whiteKingPosition : blackKingPosition;
+    for (int i = 0; i < 8; i++) {
+      for (int j = 0; j < 8; j++) {
+        //** skip empty and pieces of same color ->
+        if (board[i][j] == null || board[i][j]!.isWhite == isWhiteKing) {
+          continue;
+        }
+
+        List<List<int>> pieceValidMoves =
+            calculatedRawValidMoves(i, j, board[i][j]);
+        //?? check if kings pos. in piece valid pos ->
+        if (pieceValidMoves.any((move) =>
+            move[0] == kingPosition[0] && move[1] == kingPosition[1])) {
+          return true;
+        }
+      }
+    }
+    return false;
   }
 
   //?? init state ->
@@ -426,7 +456,7 @@ class _GameBoardState extends State<GameBoard> {
               ),
             ),
           ),
-
+          Text(checkStatus ? 'CHECK' : ''),
           //?? chess board ->
           Expanded(
             flex: 3,
