@@ -33,6 +33,16 @@ class _GameBoardState extends State<GameBoard> {
   //** list of black pieces that have been taken ->
   List<ChessPiece> blackPiecesTaken = [];
 
+  //?? taking turns into account ->
+  bool isWhiteTurn = true;
+
+  //** init king pos. ->
+  List<int> whiteKingPosition = [7, 4];
+  List<int> blackKingPosition = [0, 4];
+
+  //** check ->
+  bool checkStatus = false;
+
   //?? init board ->
   void _initBoard() {
     //** place pieces to correct position ->
@@ -158,9 +168,11 @@ class _GameBoardState extends State<GameBoard> {
   void pieceSelected(int row, int col) {
     setState(() {
       if (selectedPieces == null && board[row][col] != null) {
-        selectedPieces = board[row][col];
-        selectedRow = row;
-        selectedCol = col;
+        if (board[row][col]!.isWhite == isWhiteTurn) {
+          selectedPieces = board[row][col];
+          selectedRow = row;
+          selectedCol = col;
+        }
       }
       //?? if a piece is already selected,  but user can select another one of piece ->
       else if (board[row][col] != null &&
@@ -384,6 +396,8 @@ class _GameBoardState extends State<GameBoard> {
       selectedCol = -1;
       validMoves = [];
     });
+    //** change turns ->
+    isWhiteTurn = !isWhiteTurn;
   }
 
   //?? init state ->
